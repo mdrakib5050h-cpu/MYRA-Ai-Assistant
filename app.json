@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "MYRA AI",
+    "slug": "myra-ai-assistant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.supriyo.myra"
+    }
+  }
+}
