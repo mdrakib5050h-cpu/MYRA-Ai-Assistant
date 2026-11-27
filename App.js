@@ -1,18 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, Keyboard
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Keyboard,
+  ActivityIndicator
 } from 'react-native';
+
 import { talkToMyra } from './src/services/assistant';
+import { authenticateOwner } from './src/services/security';
 
 export default function App() {
   const [message, setMessage] = useState('');
   const [reply, setReply] = useState('Hello! I am MYRA.');
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState('');
+  const [unlocked, setUnlocked] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [securityMessage, setSecurityMessage] = useState('');
+
+  useEffect(() => {
+    verifyOwner();
+  }, []);
+
+  async function verifyOwner() {
+    setChecking(true);
+    setSecurityMessage('Checking owner security...');
+
+    const result = await authenticateOwner();
+
+    setUnlocked(result.success);
+    setSecurityMessage(result.message);
+    setChecking(false);
+  }
 
   async function sendMessage() {
-    if (!message.trim() || !apiKey.trim()) return;
+    if (!message.trim() || !apiKey.trim()) {
+      setReply('Please enter your message and Gemini API key.');
+      return;
+    }
 
     Keyboard.dismiss();
     setLoading(true);
@@ -28,6 +57,35 @@ export default function App() {
     setLoading(false);
   }
 
+  if (checking) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>MYRA SECURITY</Text>
+        <ActivityIndicator size="large" color="#70DFFF" />
+        <Text style={styles.status}>{securityMessage}</Text>
+      </View>
+    );
+  }
+
+  if (!unlocked) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>MYRA LOCKED</Text>
+        <View style={styles.orb}>
+          <Text style={styles.orbText}>MYRA</Text>
+        </View>
+        <Text style={styles.status}>{securityMessage}</Text>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={verifyOwner}
+        >
+          <Text style={styles.buttonText}>Unlock with Fingerprint</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>MYRA AI</Text>
@@ -38,7 +96,7 @@ export default function App() {
       </View>
 
       <Text style={styles.status}>
-        {loading ? 'MYRA is thinking...' : 'Ready to assist you'}
+        {loading ? 'MYRA is thinking...' : 'Owner verified - Ready'}
       </Text>
 
       <ScrollView style={styles.chat}>
@@ -111,6 +169,7 @@ const styles = StyleSheet.create({
   status: {
     color: '#70DFFF',
     marginBottom: 15,
+    textAlign: 'center',
   },
   chat: {
     width: '100%',
