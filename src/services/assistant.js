@@ -1,9 +1,13 @@
+
 import { askGemini } from './gemini';
 import { speak } from './voice';
 import { saveMemory } from './memory';
+
 export async function talkToMyra(message, apiKey) {
   try {
     const reply = await askGemini(message, apiKey);
+
+    await saveMemory(`User: ${message}\nMYRA: ${reply}`);
 
     await speak(reply);
 
