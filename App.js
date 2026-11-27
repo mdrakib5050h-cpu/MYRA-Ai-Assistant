@@ -1,4 +1,20 @@
 
+import {
+  addRoutine,
+  getRoutines,
+  addAlarm,
+  getAlarms,
+  addSleepReminder,
+  getSleepReminders,
+  addBirthday,
+  getBirthdays,
+  addShoppingItem,
+  getShoppingList,
+  addPlannerTask,
+  getPlannerTasks,
+  deleteItem,
+} from './src/services/dailyLife';
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
